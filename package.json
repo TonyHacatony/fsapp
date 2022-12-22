@@ -21,6 +21,8 @@
     "./app/*"
   ],
   "scripts": {
+    "build_backend" : "npm run build -w ./app/backend",
+    "start_backend" : "npm run start -w ./app/backend",
     "backend": "npm run start:dev -w ./app/backend",
     "frontend": "npm run start -w ./app/frontend",
     "api": "npm run watch -w ./lib/type",
