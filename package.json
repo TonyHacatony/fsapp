@@ -1,0 +1,36 @@
+{
+  "name": "fsapp",
+  "version": "1.0.0",
+  "description": "stab for full stack app",
+  "private": true,
+  "license": "MIT",
+  "author": {
+    "name": "Eduard Veramenkou",
+    "email": "eduard.veramenkou@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TonyHacatony/fsapp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/TonyHacatony/fsapp/issues"
+  },
+  "homepage": "https://github.com/TonyHacatony/fsapp#readme",
+  "workspaces": [
+    "./lib/*",
+    "./app/*"
+  ],
+  "scripts": {
+    "backend": "npm run start:dev -w ./app/backend",
+    "frontend": "npm run start -w ./app/frontend",
+    "api": "npm run watch -w ./lib/type",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@lib/type": "*"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "env-cmd": "^10.1.0"
+  }
+}
