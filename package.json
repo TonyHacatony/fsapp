@@ -21,18 +21,11 @@
     "./app/*"
   ],
   "scripts": {
-    "backend:build" : "npm run build -w ./app/backend",
+    "backend:build" : "npm run build -w ./lib/type && npm run build -w ./app/backend",
     "backend:start" : "npm run start -w ./app/backend",
     "backend": "npm run start:dev -w ./app/backend",
     "frontend": "npm run start -w ./app/frontend",
     "api": "npm run watch -w ./lib/type",
     "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "dependencies": {
-    "@lib/type": "*"
-  },
-  "devDependencies": {
-    "cross-env": "^7.0.3",
-    "env-cmd": "^10.1.0"
   }
 }
