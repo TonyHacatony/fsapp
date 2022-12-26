@@ -13,8 +13,8 @@ COPY ./lib/type/dist ./lib/type/dist
 COPY ./app/backend ./app/backend
 
 # update dependencies for backend
+COPY app/backend/package*.json app/backend
 WORKDIR /app/backend
-COPY app/backend/package*.json app/backend/
 RUN npm install
 WORKDIR /
 
