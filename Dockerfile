@@ -8,7 +8,7 @@ RUN npm install -g typescript
 # build libs
 COPY ./lib/type ./lib/type
 RUN ["npm", "run", "docker:prebuild"]
-COPY ./lib/type/dist ./lib/type/dist
+COPY lib/type/dist lib/type/dist
 
 COPY ./app/backend ./app/backend
 
