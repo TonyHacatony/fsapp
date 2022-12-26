@@ -21,8 +21,12 @@
     "./app/*"
   ],
   "scripts": {
+    "docker:run": "docker run --env-file .development.env fe0248cc1dc06e0339c67ac777d99d521a24b64db8c5ef3baee4d0c4458808f7 --add-host localhost --expose 8080",
+    "docker:prebuild": "npm run build -w ./lib/type",
+    "docker:build": "npm run build -w ./app/backend",
     "backend:build" : "npm run build -w ./lib/type && npm run build -w ./app/backend",
     "backend:start" : "npm run start -w ./app/backend",
+    "start:prod" : "node dist/main -w ./app/backend",
     "backend": "npm run start:dev -w ./app/backend",
     "frontend": "npm run start -w ./app/frontend",
     "api": "npm run watch -w ./lib/type",
