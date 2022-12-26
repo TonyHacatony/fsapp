@@ -8,7 +8,7 @@ RUN npm install -g typescript
 # build libs
 COPY ./lib/type ./lib/type
 RUN ["npm", "run", "docker:prebuild"]
-COPY lib/type/dist lib/type/dist
+# COPY lib/type/dist lib/type/dist
 
 COPY ./app/backend ./app/backend
 
@@ -20,7 +20,7 @@ WORKDIR /
 
 # build backend
 RUN ["npm", "run", "docker:build"]
-COPY ./app/backend/dist ./app/backend/dist
+# COPY ./app/backend/dist ./app/backend/dist
 
 EXPOSE 8080
 CMD ["npm", "run", "backend:start"]
