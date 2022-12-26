@@ -15,7 +15,7 @@
   "bugs": {
     "url": "https://github.com/TonyHacatony/fsapp/issues"
   },
-  "homepage": "https://tonyhacatony.github.com/fsapp",
+  "homepage": "https://tonyhacatony.github.io/fsapp",
   "workspaces": [
     "./lib/*",
     "./app/*"
