@@ -31,7 +31,7 @@
     "frontend": "npm run start -w ./app/frontend",
     "api": "npm run watch -w ./lib/type",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d build"
+    "predeploy": "npm run build -w ./app/frontend",
+    "deploy": "gh-pages -d build -w ./app/frontend"
   }
 }
