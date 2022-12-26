@@ -26,6 +26,7 @@
     "docker:build": "npm run build -w ./app/backend",
     "backend:build" : "npm run build -w ./lib/type && npm run build -w ./app/backend",
     "backend:start" : "npm run start -w ./app/backend",
+    "start:prod" : "node dist/main -w ./app/backend",
     "backend": "npm run start:dev -w ./app/backend",
     "frontend": "npm run start -w ./app/frontend",
     "api": "npm run watch -w ./lib/type",
