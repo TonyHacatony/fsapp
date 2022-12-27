@@ -28,7 +28,7 @@
     "backend:start" : "npm run start -w ./app/backend",
     "start:prod" : "node dist/main -w ./app/backend",
     "backend": "npm run start:dev -w ./app/backend",
-    "frontend": "npm run start -w ./app/frontend",
+    "frontend": "npm run start:dev -w ./app/frontend",
     "api": "npm run watch -w ./lib/type",
     "test": "echo \"Error: no test specified\" && exit 1",
     "predeploy": "npm run build -w ./app/frontend",
