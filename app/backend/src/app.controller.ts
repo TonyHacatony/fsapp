@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Get,
-  HttpCode,
-  HttpStatus,
-  Body,
-  Post,
-} from '@nestjs/common';
-import { TestRequest, TestResponse } from '@lib/type';
+import { Controller, Get, HttpCode, HttpStatus } from '@nestjs/common';
 
 @Controller()
 export class AppController {
@@ -14,10 +6,5 @@ export class AppController {
   @HttpCode(HttpStatus.OK)
   healthCheck(): string {
     return 'Server works';
-  }
-
-  @Post()
-  test(@Body() req: TestRequest): TestResponse {
-    return { response: req.body + '_serverUpdate' };
   }
 }

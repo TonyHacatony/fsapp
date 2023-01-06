@@ -1,43 +1,84 @@
-import { useEffect, useState } from 'react';
-import api from './util/api';
-import { TestRequest, TestResponse } from '@lib/type';
+import {
+  Routes,
+  Route,
+  Navigate,
+  useNavigate,
+  NavigateFunction,
+} from "react-router-dom";
+import jwt from "jwt-decode";
+import { TokenPayload } from "@lib/type";
 
-function App() {
+import LoginPage from "./auth/LoginPage";
+import WelcomePage from "./main/WelcomePage";
+import NotFoundPage from "./util/NotFoundPage";
+import SignUpPage from "./auth/SignUpPage";
+import { SessionStorage } from "./util/GlobalVariables";
+import { ReactJSXElement } from "@emotion/react/types/jsx-namespace";
 
-  const [health, setHealth] = useState('In progress...');
-  const [value, setValue] = useState('');
-  const [response, setResponse] = useState('');
+class AuthGuardProps {
+  token:string;
+  element: ReactJSXElement;
+}
 
-  useEffect(() => {
-    api.get('/').then((date) => setHealth(date.data));
-  }, []);
+const AuthGuard = ({ token, element }: AuthGuardProps) => {
+  return Boolean(token) ? element : <Navigate to="/login" replace />;
+};
 
-  const inputId = 'test_input';
+const App: React.FunctionComponent = () => {
+  let isAuth: string | null = sessionStorage.getItem(SessionStorage.authToken);
 
-  const onClick = () => {
-    const body: TestRequest = { body: value };
-    api.post('/', body).then((res) => {
-      const response: TestResponse = res.data;
-      setResponse(response.response)
-    });
+  let navigate: NavigateFunction;
+
+  const setAuth = (token: string | null): void => {
+    isAuth = token;
+    sessionStorage.setItem(SessionStorage.authToken, token);
+    const parsedToken: TokenPayload = jwt(token);
+    sessionStorage.setItem(SessionStorage.userName, parsedToken.name);
+    if (token) {
+      navigate("/welcome");
+    } else {
+      navigate("/login");
+    }
   };
 
-  const handleInputClick = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val: string = e.target.value;
-    setValue(() => val);
-  }
+  const removeToken = (): void => {
+    sessionStorage.removeItem(SessionStorage.authToken);
+    navigate("/login");
+  };
 
   return (
-    <div>
-      <h1>
-        Health-status: {health}
-      </h1>
-      <label id={inputId}>Request</label>
-      <input size={4} onChange={handleInputClick}></input>
-      <button onClick={onClick}>Send response</button>
-      <h2>Response: {response}</h2>
-    </div>
+    <Routes>
+      <>
+        {(navigate = useNavigate())}
+        <Route
+          path="/"
+          element={
+            <AuthGuard
+              token={isAuth}
+              element={<Navigate to="/welcome" replace />}
+            />
+          }
+        />
+        <Route path="/login" element={<LoginPage setAuth={setAuth} />} />
+        <Route path="/signup" element={<SignUpPage setAuth={setAuth} />} />
+        <Route
+          path="/welcome"
+          element={
+            <AuthGuard
+              token={isAuth}
+              element={
+                <WelcomePage
+                  name={sessionStorage.getItem(SessionStorage.userName)}
+                  signOut={removeToken}
+                />
+              }
+            />
+          }
+        />
+        <Route path="*" element={<NotFoundPage />} />
+      </>
+    </Routes>
   );
-}
+};
 
 export default App;
