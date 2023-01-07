@@ -20,6 +20,7 @@ async function bootstrap() {
   app.enableCors({
     origin: [
       'https://fsapp-front.vercel.app',
+      'https://fsapp-front.vercel.app/*',
       'http://localhost:3000',
       'http://localhost',
     ],
