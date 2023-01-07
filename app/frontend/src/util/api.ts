@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { SessionStorage } from "./GlobalVariables";
 
 const baseURL = process.env.REACT_APP_BASE_URL;
@@ -11,4 +11,9 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-export { api };
+const parseError = (err: AxiosError): string => {
+  const responseError = err.response.data;
+  return `Status code: ${responseError["statusCode"]}, Message: ${responseError["message"]}`
+}
+
+export { api, parseError };

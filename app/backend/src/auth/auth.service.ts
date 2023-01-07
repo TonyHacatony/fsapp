@@ -2,6 +2,7 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import {
@@ -16,6 +17,7 @@ import { AuthResponse, TokenPayload, CreateUserDto } from '@lib/type';
 
 import { UserService } from '../user/user.service';
 import { User } from '../user/user.model';
+import { BadRequestException } from '@nestjs/common/exceptions';
 
 const googleClient = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
@@ -64,7 +66,7 @@ export class AuthService {
   async registration(dto: CreateUserDto) {
     const existedUser = await this.userService.getUserByEmail(dto.email);
     if (existedUser) {
-      throw new HttpException('User exists', HttpStatus.BAD_REQUEST);
+      throw new BadRequestException('User exists');
     }
     const salt = 10;
     const hashedPassword = await bcrypt.hash(dto.password, salt);
@@ -75,6 +77,10 @@ export class AuthService {
     return this.generateToken(user);
   }
 
+  async isEmailAvailable(email: string): Promise<boolean> {
+    return !Boolean(await this.userService.getUserByEmail(email));
+  }
+
   private generateToken(user: User): AuthResponse {
     const { id, name, email, roles } = user;
     const payload: TokenPayload = { id, name, email, roles };
@@ -83,7 +89,7 @@ export class AuthService {
 
   private async validateUser(dto: CreateUserDto) {
     const user = await this.userService.getUserByEmail(dto.email);
-    const passwordEquals = await bcrypt.compare(dto.password, user.password);
+    const passwordEquals = await bcrypt.compare(dto.password, user['password']);
     if (user && passwordEquals) {
       return user;
     }

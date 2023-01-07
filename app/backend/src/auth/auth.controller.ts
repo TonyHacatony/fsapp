@@ -4,9 +4,16 @@ import {
   Post,
   UnauthorizedException,
   Get,
+  Param,
 } from '@nestjs/common';
 
-import { AuthResponse, CreateUserDto, Role, LoginUserDto } from '@lib/type';
+import {
+  AuthResponse,
+  CreateUserDto,
+  Role,
+  LoginUserDto,
+  BooleanReponse,
+} from '@lib/type';
 
 import { AuthService } from './auth.service';
 import { Roles } from './auth.decorator';
@@ -14,6 +21,17 @@ import { Roles } from './auth.decorator';
 @Controller('/auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
+
+  @Roles(Role.Guest)
+  @Get('/email/:email')
+  async isEmailAvailable(
+    @Param('email') email: string,
+  ): Promise<BooleanReponse> {
+    if (await this.authService.isEmailAvailable(email)) {
+      return BooleanReponse.true;
+    }
+    return BooleanReponse.false;
+  }
 
   @Roles(Role.Guest)
   @Post('/login')
@@ -35,7 +53,7 @@ export class AuthController {
     return this.authService.loginWithGoogle(tokenId);
   }
 
-  @Roles(Role.Admin)
+  @Roles(Role.User)
   @Get('/hide')
   async getSecuredData() {
     return { msg: 'Secure data' };

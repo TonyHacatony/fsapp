@@ -1,11 +1,11 @@
 import "./LoginPage.css";
 
 import Stack from "@mui/material/Stack";
-import { Divider } from "@mui/material";
+import { Divider, Link } from "@mui/material";
 
-import Button from "../component/CustomButton";
 import SignUpForm from "../component/form/SignUpForm";
 import { AuthProps } from "../util/CustomPropTypes";
+import GoogleLoginButton from "./GoogleLoginButton";
 
 const SignUpPage = ({ setAuth }: AuthProps) => {
   return (
@@ -13,7 +13,15 @@ const SignUpPage = ({ setAuth }: AuthProps) => {
       <Stack spacing={2} direction="column">
         <SignUpForm setAuth={setAuth} />
         <Divider>or</Divider>
-        <Button>Sign up with google</Button>
+        <Stack
+          spacing={2}
+          direction="row"
+          alignItems="center"
+          alignContent="center"
+        >
+          <GoogleLoginButton setAuth={setAuth}/>
+          <Link href="/login">{"Log in"}</Link>
+        </Stack>
       </Stack>
     </div>
   );

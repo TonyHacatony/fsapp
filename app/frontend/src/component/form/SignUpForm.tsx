@@ -1,73 +1,119 @@
-import { FormikErrors, FormikHelpers, FormikValues } from "formik";
+import { Stack } from "@mui/material";
+import { AxiosError, AxiosResponse } from "axios";
+import { FormikErrors, FormikHelpers, FormikProps, FormikValues } from "formik";
 
-import { api } from "../../util/api";
+import { api, parseError } from "../../util/api";
 import { AuthProps } from "../../util/CustomPropTypes";
+import Button from "../CustomButton";
 import {
   FormInputType,
   CustomForm,
   FormInputObj,
-  ValidateFunction,
+  FormProps,
+  createInputs,
 } from "./CustomForm";
 
-const loginInputs: FormInputObj[] = [
-  {
-    name: "name",
-    label: "Name",
-    type: FormInputType.text,
-  },
-  {
-    name: "email",
-    label: "Email",
-    type: FormInputType.email,
-  },
-  {
-    name: "password",
-    label: "Password",
-    type: FormInputType.password,
-  },
+const firstPageInputs: FormInputObj[] = [
+  new FormInputObj("email", "Email", FormInputType.email),
 ];
 
-const validate: ValidateFunction = (values: FormikValues) => {
-  const errors: FormikErrors<FormikValues> = {};
-  if (!values.email) {
-    errors.email = "Required";
-  } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)) {
-    errors.email = "Invalid email address";
-  }
-  return errors;
-};
-
-const submit = (
-  values: FormikValues,
-  { setSubmitting }: FormikHelpers<FormikValues>,
-  setAuth
-) => {
-  api
-    .post(`api/auth/signup`, {
-      name: values.name,
-      email: values.email,
-      password: values.password,
-    })
-    .then((response) => {
-      if (response !== null && response.data.token !== null) {
-        setAuth(response.data.token);
-      }
-      setSubmitting(false);
-    });
-};
+const secondPageInputs: FormInputObj[] = [
+  new FormInputObj("name", "Name"),
+  new FormInputObj("password", "Password", FormInputType.password),
+  new FormInputObj("password_check", "Password repetition", FormInputType.password),
+];
 
 const SignUpForm = ({ setAuth }: AuthProps) => {
+  const firstStep: FormProps = {
+    title: 'Enter an email',
+    formInputs: firstPageInputs,
+
+    validate(values: FormikValues): void | FormikErrors<FormikValues> {
+      console.log('validate sign up');
+      console.log(values.email);
+      const errors: FormikErrors<FormikValues> = {};
+      if (!values.email) {
+        errors.email = "Required";
+      } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)) {
+        errors.email = "Invalid email address";
+      }
+      return errors;
+    },
+    async submit(values: FormikValues, props: FormikHelpers<FormikValues>): Promise<any> {
+      const email = values.email;
+      const res: AxiosResponse = await api.get(`api/auth/email/${email}`);
+      if (res.data) {
+        props.setSubmitting(false);
+        return Promise.resolve(true);
+      }
+      props.setErrors({ email: 'User with this email already exists'})
+      props.setSubmitting(false);
+      return Promise.resolve(false);
+    },
+    getForm(props: FormikProps<FormikValues>): JSX.Element {
+      return (
+        <>
+          <Stack spacing={2} direction="column">
+            <>{createInputs(props, firstPageInputs)}</>
+            <Button
+              disabled={props.isSubmitting}
+              type="submit"
+            >Continue</Button>
+          </Stack>
+        </>
+      );
+    }
+  };
+
+  const secondStep: FormProps = {
+    title: 'Create a new password',
+    formInputs: secondPageInputs,
+
+    validate(values: FormikValues): void | FormikErrors<FormikValues> {
+      const errors: FormikErrors<FormikValues> = {};
+      if (!values.email) {
+        errors.email = "Required";
+      } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)) {
+        errors.email = "Invalid email address";
+      }
+      return errors;
+    },
+    submit(values: FormikValues, { setSubmitting }: FormikHelpers<FormikValues>): void | Promise<any> {
+      const body = {
+        email: values.email,
+        name: values.name,
+        password: values.password,
+      };
+      api
+        .post(`api/auth/signup`, body)
+        .then((response) => {
+          if (response !== null && response.data.token !== null) {
+            setAuth(response.data.token);
+          }
+          setSubmitting(false);
+        })
+        .catch((err: AxiosError) => {
+          setSubmitting(false);
+          alert(parseError(err));
+        });
+    },
+    getForm(props: FormikProps<FormikValues>): JSX.Element {
+      return (
+        <>
+          <Stack spacing={2} direction="column">
+            <>{createInputs(props, secondPageInputs)}</>
+            <Button
+              disabled={props.isSubmitting}
+              type="submit"
+            >Create acoount</Button>
+          </Stack>
+        </>
+      );
+    },
+  };
+
   return (
-    <CustomForm
-      title="Create new account"
-      submitBtnName="Sign Up"
-      formInputs={loginInputs}
-      validate={validate}
-      submit={(
-        values: FormikValues,
-        formikHelpers: FormikHelpers<FormikValues>
-      ) => submit(values, formikHelpers, setAuth)}
-    />
+    <CustomForm forms={[firstStep, secondStep]} />
   );
 };
 

@@ -5,10 +5,10 @@ import {
   FormikProps,
   FormikValues,
 } from "formik";
+import { useEffect, useState } from "react";
 
 import Input from "../CustomInput";
-import Button from "../CustomButton";
-import { Stack } from "@mui/material";
+import { ReactJSXElement } from "@emotion/react/types/jsx-namespace";
 
 type ValidateFunction = (
   values: FormikValues
@@ -17,17 +17,28 @@ type ValidateFunction = (
 type SubmitFunction = (
   values: FormikValues,
   formikHelpers: FormikHelpers<FormikValues>
-) => void | Promise<any>;
+) => void | Promise<boolean>;
 
-class FormProps {
+interface FormProps {
   title: string;
-  submitBtnName: string;
   formInputs: FormInputObj[];
   validate: ValidateFunction;
   submit: SubmitFunction;
+  getForm: (props: FormikProps<FormikValues>) => ReactJSXElement;
 }
 
 class FormInputObj {
+  constructor(
+    name: string,
+    label: string,
+    type: FormInputType = FormInputType.text,
+    initialValue: any = "",
+  ) {
+    this.name = name;
+    this.label = label;
+    this.type = type;
+    this.initialValue = this.initialValue;
+  }
   name: string;
   label: string;
   type?: FormInputType = FormInputType.text;
@@ -40,35 +51,46 @@ enum FormInputType {
   password = "password",
 }
 
+class MFormProps {
+  forms: FormProps[];
+}
+
 const CustomForm = ({
-  title,
-  submitBtnName,
-  formInputs,
-  validate,
-  submit,
-}: FormProps) => {
+  forms
+}: MFormProps) => {
+  const [step, setStep] = useState(0);
+  const [activeForm, setActiveForm] = useState(forms[0]);
+
+  const isLastStep = step === (forms.length - 1);
+
+  const handleSubmit = async (values: FormikValues, props: FormikHelpers<FormikValues>) => {
+    const submit = await activeForm.submit(values, props);
+
+    console.log('submit');
+    console.log(props);
+    if (!isLastStep && submit) {
+      setStep((prevStep: number) => {
+        const nextStep = prevStep + 1;
+        setActiveForm(forms[nextStep]);
+        return nextStep;
+      });
+
+      props.setTouched({});
+      props.setSubmitting(false);
+    }
+  }
+
   return (
     <div className="form">
-      <h1>{title}</h1>
+      <h1>{activeForm.title}</h1>
       <Formik
-        initialValues={collectInitialValues(formInputs)}
-        validate={validate}
-        onSubmit={submit}
+        initialValues={collectInitialValues(forms)}
+        validate={activeForm.validate}
+        onSubmit={handleSubmit}
       >
         {(props: FormikProps<FormikValues>) => (
           <form onSubmit={props.handleSubmit}>
-            <>
-              <Stack spacing={2} direction="column">
-                <>{createInputs(props, formInputs)}</>
-                <Button
-                  variant="contained"
-                  type="submit"
-                  disabled={props.isSubmitting}
-                >
-                  {submitBtnName}
-                </Button>
-              </Stack>
-            </>
+            {activeForm.getForm(props)}
           </form>
         )}
       </Formik>
@@ -86,7 +108,7 @@ const createInputs = (
   }: FormikProps<FormikValues>,
   inputs: FormInputObj[]
 ): object[] | void => {
-  console.log(inputs);
+
   return inputs.map(({ name, label, type }: FormInputObj) => (
     // eslint-disable-next-line react/jsx-key
     <Input
@@ -97,14 +119,18 @@ const createInputs = (
       onChange={handleChange}
       onBlur={handleBlur}
       value={values[name]}
+      helperText={Boolean(touched[name] && errors[name])}
     ></Input>
   ));
 };
 
-const collectInitialValues = (inputs: FormInputObj[]): FormikValues =>
-  inputs.reduce((acc, { name, initialValue }) => {
-    return { ...acc, [name]: initialValue };
-  }, {});
+const collectInitialValues = (forms: FormProps[]): FormikValues =>
+  forms
+    .reduce((acc, form) => [...acc, ...form.formInputs], [])
+    .reduce((acc, { name, initialValue }) => {
+      return { ...acc, [name]: initialValue };
+    }, {});
 
-export { CustomForm, FormInputType, FormInputObj };
-export type { ValidateFunction, SubmitFunction };
+
+export { CustomForm, FormInputType, FormInputObj, createInputs };
+export type { ValidateFunction, SubmitFunction, FormProps };
