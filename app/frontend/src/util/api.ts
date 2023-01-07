@@ -8,6 +8,7 @@ const api = axios.create({ baseURL });
 api.interceptors.request.use((config) => {
   const token = sessionStorage.getItem(SessionStorage.authToken);
   config.headers["Authorization"] = token ? `Bearer ${token}` : null;
+  config.headers["Access-Control-Allow-Origin"] = '*';
   return config;
 });
 
