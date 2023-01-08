@@ -21,7 +21,6 @@ import { UserModule } from './user/user.module';
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
-      uri: process.env.POSTGRES_URI,
       models: [User],
       autoLoadModels: true,
       synchronize: true,
