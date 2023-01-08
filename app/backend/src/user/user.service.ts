@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/sequelize';
+import * as bcrypt from 'bcrypt';
 
-import { CreateUserDto } from '@lib/type';
+import { CreateUserDto, Role } from '@lib/type';
 
 import { User } from './user.model';
 
@@ -20,7 +21,11 @@ export class UserService {
   }
 
   async createUser(dto: CreateUserDto) {
-    return await this.userRepository.create(dto);
+    return await this.userRepository.create({
+      roles: [Role.User],
+      ...dto,
+      password: this.hashPassword(dto.password),
+    });
   }
 
   async editUser(id: number, dto: CreateUserDto) {
@@ -44,5 +49,13 @@ export class UserService {
   async validateUser(token: string): Promise<User> {
     const tokenObj = this.jwtService.decode(token.split(' ')[1]);
     return await this.getUserByEmail(tokenObj['email']);
+  }
+
+  private hashPassword(pass: string): string {
+    if (!Boolean(pass)) {
+      return '';
+    }
+    const salt = bcrypt.genSaltSync();
+    return bcrypt.hashSync(pass, salt);
   }
 }
