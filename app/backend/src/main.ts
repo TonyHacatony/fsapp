@@ -42,9 +42,13 @@ function setUpGlobalGuards(app: INestApplication) {
 
 function addHooks() {
   User.beforeCreate(async (user) => {
+    Logger.log('Before create');
     if (user.isNewRecord) {
+      Logger.log('Start work with roles');
       const roles = user.getDataValue('roles');
+      Logger.log(roles);
       if (!Boolean(roles) || roles.length === 0) {
+        Logger.log('Roles will be set by default');
         user.setDataValue('roles', [Role.User]);
       }
 
