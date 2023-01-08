@@ -44,7 +44,7 @@ function addHooks() {
   User.beforeCreate(async (user) => {
     if (user.isNewRecord) {
       const roles = user.getDataValue('roles');
-      if (roles === undefined || roles.length === 0) {
+      if (!Boolean(roles) || roles.length === 0) {
         user.setDataValue('roles', [Role.User]);
       }
 
