@@ -68,12 +68,7 @@ export class AuthService {
     if (existedUser) {
       throw new BadRequestException('User exists');
     }
-    const salt = 10;
-    const hashedPassword = await bcrypt.hash(dto.password, salt);
-    const user = await this.userService.createUser({
-      ...dto,
-      password: hashedPassword,
-    });
+    const user = await this.userService.createUser(dto);
     return this.generateToken(user);
   }
 
