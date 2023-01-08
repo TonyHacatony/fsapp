@@ -34,7 +34,7 @@ export class User extends Model<User, CreateUserDto> {
   @Column({
     type: DataType.ARRAY(DataType.ENUM),
     values: Object.values(Role),
-    defaultValue: [Role.User as Role],
+    defaultValue: [Role.User] as Role[],
     allowNull: false,
   })
   roles: Role[];
