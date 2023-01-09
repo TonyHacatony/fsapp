@@ -23,7 +23,7 @@ export class UserService {
 
   async createUser(dto: CreateUserDto) {
     const user = {
-      roles: [Role.User],
+      // roles: [Role.User],
       ...dto,
       password: this.hashPassword(dto.password),
     };
