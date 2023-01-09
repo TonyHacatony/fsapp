@@ -6,6 +6,7 @@ import * as bcrypt from 'bcrypt';
 import { CreateUserDto, Role } from '@lib/type';
 
 import { User } from './user.model';
+import { Logger } from '@nestjs/common/services';
 
 @Injectable()
 export class UserService {
@@ -21,11 +22,13 @@ export class UserService {
   }
 
   async createUser(dto: CreateUserDto) {
-    return await this.userRepository.create({
+    const user = {
       roles: [Role.User],
       ...dto,
       password: this.hashPassword(dto.password),
-    });
+    };
+    Logger.log(user);
+    return await this.userRepository.create(user);
   }
 
   async editUser(id: number, dto: CreateUserDto) {

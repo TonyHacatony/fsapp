@@ -33,7 +33,7 @@ export class User extends Model<User, CreateUserDto> {
 
   @Column({
     type: DataType.ARRAY(DataType.ENUM),
-    values: Object.values(Role),
+    values: Object.values<Role>(Role),
     allowNull: false,
   })
   roles: Role[];
