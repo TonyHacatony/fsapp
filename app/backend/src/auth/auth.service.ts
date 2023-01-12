@@ -1,49 +1,28 @@
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  Logger,
-  UnauthorizedException,
-} from '@nestjs/common';
-import {
-  LoginTicket,
-  OAuth2Client,
-  TokenPayload as GooglePayload,
-} from 'google-auth-library';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { BadRequestException } from '@nestjs/common/exceptions';
 import * as bcrypt from 'bcrypt';
 
 import { AuthResponse, TokenPayload, CreateUserDto } from '@lib/type';
 
 import { UserService } from '../user/user.service';
 import { User } from '../user/user.model';
-import { BadRequestException } from '@nestjs/common/exceptions';
-
-const googleClient = new OAuth2Client(
-  process.env.GOOGLE_CLIENT_ID,
-  process.env.GOOGLE_CLIENT_SECRET,
-  'postmessage',
-);
+import { GoogleAuthService } from './auth.google.client';
 
 @Injectable()
 export class AuthService {
   constructor(
     private userService: UserService,
     private jwtService: JwtService,
+    private googleAuthServide: GoogleAuthService,
   ) {}
 
   async loginWithGoogle(
     tokenId: string,
   ): Promise<AuthResponse | UnauthorizedException> {
-    const ticket: LoginTicket = await googleClient.verifyIdToken({
-      idToken: tokenId,
-    });
-    if (!ticket) {
-      throw new UnauthorizedException('Invalid - google id token');
-    }
-
-    const payload: GooglePayload = ticket.getPayload();
-    const email: string = payload.email;
+    const { email, name } = await this.googleAuthServide.getGooglePayload(
+      tokenId,
+    );
     let user: User = await this.userService.getUserByEmail(email);
     if (user) {
       return { ...this.generateToken(user) };
@@ -51,7 +30,7 @@ export class AuthService {
 
     const userDto: CreateUserDto = {
       email,
-      name: payload.name,
+      name: name,
       password: 'asdasdasd',
     };
     user = await this.userService.createUser(userDto);
@@ -59,7 +38,7 @@ export class AuthService {
   }
 
   async login(dto: CreateUserDto): Promise<AuthResponse> {
-    const user = await this.validateUser(dto);
+    const user: User = await this.validateUser(dto);
     return { ...this.generateToken(user) };
   }
 
@@ -83,10 +62,12 @@ export class AuthService {
   }
 
   private async validateUser(dto: CreateUserDto) {
-    const user = await this.userService.getUserByEmail(dto.email);
-    const passwordEquals = await bcrypt.compare(dto.password, user['password']);
-    if (user && passwordEquals) {
-      return user;
+    const user: User = await this.userService.getUserByEmail(dto.email);
+    if (user) {
+      const passwordEquals = await bcrypt.compare(dto.password, user.password);
+      if (user && passwordEquals) {
+        return user;
+      }
     }
     throw new UnauthorizedException({ message: 'Incorrect email or password' });
   }

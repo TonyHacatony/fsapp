@@ -1,3 +1,4 @@
+import { AvailabilityResponse, BooleanReponse } from "@lib/type";
 import { Stack } from "@mui/material";
 import { AxiosError, AxiosResponse } from "axios";
 import { FormikErrors, FormikHelpers, FormikProps, FormikValues } from "formik";
@@ -42,7 +43,8 @@ const SignUpForm = ({ setAuth }: AuthProps) => {
     async submit(values: FormikValues, props: FormikHelpers<FormikValues>): Promise<any> {
       const email = values.email;
       const res: AxiosResponse = await api.get(`api/auth/email/${email}`);
-      if (res.data) {
+      const { available } = res.data as AvailabilityResponse;
+      if (available === BooleanReponse.true) {
         props.setSubmitting(false);
         return Promise.resolve(true);
       }

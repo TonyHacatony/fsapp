@@ -3,10 +3,12 @@ import { JwtModule } from '@nestjs/jwt';
 
 import { UserModule } from '../user/user.module';
 import { AuthController } from './auth.controller';
+import { GoogleAuthService } from './auth.google.client';
 import { AuthService } from './auth.service';
+
 @Module({
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, GoogleAuthService],
   imports: [
     forwardRef(() => UserModule),
     JwtModule.register({

@@ -13,6 +13,10 @@ describe('AppController', () => {
   });
 
   describe('health check', () => {
+    it('to be defined', () => {
+      expect(appController).toBeDefined();
+    });
+
     it('just health check', () => {
       expect(appController.healthCheck()).toBe('Server works');
     });
